@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import br.edu.ufrn.ecommerce.dto.ProductRequestDTO;
 import br.edu.ufrn.ecommerce.service.EcommerceService;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/buy")
 public class EcommerceController {
@@ -21,8 +23,8 @@ public class EcommerceController {
     @PostMapping
     public ResponseEntity<Void> buy(
         @RequestBody ProductRequestDTO product
-    ) {
-        
+    ) throws IOException, InterruptedException {
+        var prod = ecommerceService.getProd(product.getUser());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
