@@ -26,9 +26,9 @@ public class FidelityService {
 
     private static final HttpClient client = HttpClient.newHttpClient();
 
-    TimeLimiterConfig timeLimiterConfig = TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(1)).build();
+    private TimeLimiterConfig timeLimiterConfig = TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(1)).build();
 
-    TimeLimiter timeLimiter = TimeLimiter.of(timeLimiterConfig);
+    private TimeLimiter timeLimiter = TimeLimiter.of(timeLimiterConfig);
 
     private BlockingQueue<HttpRequest> queue = new LinkedBlockingQueue<>();
 
