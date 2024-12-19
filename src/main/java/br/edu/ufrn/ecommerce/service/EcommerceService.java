@@ -1,10 +1,13 @@
 package br.edu.ufrn.ecommerce.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import br.edu.ufrn.ecommerce.dto.BonusRequestDTO;
 
 @Service
 public class EcommerceService {
@@ -22,4 +25,7 @@ public class EcommerceService {
         return storeService.get(id);
     }
     
+    public void processBonus(BonusRequestDTO bonusRequestDTO) throws IOException, InterruptedException {
+        fidelityService.applyBonus(bonusRequestDTO);
+    }
 }

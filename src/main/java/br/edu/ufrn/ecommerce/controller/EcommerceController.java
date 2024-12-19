@@ -1,5 +1,6 @@
 package br.edu.ufrn.ecommerce.controller;
 
+import br.edu.ufrn.ecommerce.dto.BonusRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
