@@ -28,10 +28,4 @@ public class EcommerceController {
         
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-    @PostMapping("/bonus")
-    public ResponseEntity<Void> bonus(@RequestBody BonusRequestDTO bonusRequestDTO) throws IOException, InterruptedException {
-        ecommerceService.processBonus(bonusRequestDTO);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
 }
