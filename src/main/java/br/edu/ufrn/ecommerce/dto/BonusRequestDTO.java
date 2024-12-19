@@ -4,13 +4,13 @@ public class BonusRequestDTO {
 
     private Integer user;
 
-    private Integer bonus;
+    private double bonus;
 
     public Integer getUser() {
         return user;
     }
 
-    public Integer getbonus(){
+    public double getBonus() {
         return bonus;
     }
 }
