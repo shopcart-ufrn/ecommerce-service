@@ -1,9 +1,6 @@
 package br.edu.ufrn.ecommerce.service;
 
 import br.edu.ufrn.ecommerce.dto.request.FidelityBonusRequestDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.resilience4j.timelimiter.TimeLimiter;
-import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,6 +1,5 @@
 package br.edu.ufrn.ecommerce.service;
 
-import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.edu.ufrn.ecommerce.dto.request.FidelityBonusRequestDTO;
 import br.edu.ufrn.ecommerce.dto.response.StoreProductResponseDTO;
 
 @Service

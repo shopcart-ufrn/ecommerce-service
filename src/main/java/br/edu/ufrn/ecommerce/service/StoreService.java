@@ -10,7 +10,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import br.edu.ufrn.ecommerce.dto.request.StoreProductRequestDTO;
 import br.edu.ufrn.ecommerce.dto.request.StoreSellRequestDTO;
-import br.edu.ufrn.ecommerce.dto.response.ProductResponseDTO;
 import br.edu.ufrn.ecommerce.dto.response.StoreProductResponseDTO;
 
 @Service
@@ -36,7 +35,7 @@ public class StoreService {
 
     private StoreProductResponseDTO getProduct(StoreProductRequestDTO productRequestDTO) {
         // logic here to send request to /product endpoint
-        
+
         return new StoreProductResponseDTO(1, "Some", 15.99);
     }
 
