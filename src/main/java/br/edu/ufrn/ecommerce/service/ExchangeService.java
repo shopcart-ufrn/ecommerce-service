@@ -34,7 +34,7 @@ public class ExchangeService {
         return this.client;
     }
 
-    private Double getExchangeRate() {
+    private Double getExchange() {
         String endpoint = "/exchange";
 
         WebClient client = this.getClient();
@@ -62,7 +62,7 @@ public class ExchangeService {
     @CircuitBreaker(name = "exchangeService", fallbackMethod = "getExchangeRateFallback")
     @CachePut(value = "exchangeCache", key="'lastExchangeRate'")
     public Double getExchangeRateWithFaultTolerance() {
-        Double rate = this.getExchangeRate();
+        Double rate = this.getExchange();
 
         logger.debug("Exchange successfully retrieved with ft enabled.");
 
@@ -70,7 +70,7 @@ public class ExchangeService {
     }
 
     public Double getExchangeRateWithoutFaultTolerance() {
-        Double rate = this.getExchangeRate();
+        Double rate = this.getExchange();
 
         logger.debug("Exchange successfully retrieved with ft disabled.");
 
