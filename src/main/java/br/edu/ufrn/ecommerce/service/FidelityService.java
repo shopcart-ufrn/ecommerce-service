@@ -1,6 +1,6 @@
 package br.edu.ufrn.ecommerce.service;
 
-import br.edu.ufrn.ecommerce.dto.BonusRequestDTO;
+import br.edu.ufrn.ecommerce.dto.request.BonusRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;

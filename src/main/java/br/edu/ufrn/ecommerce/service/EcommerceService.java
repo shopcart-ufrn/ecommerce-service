@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.edu.ufrn.ecommerce.dto.BonusRequestDTO;
+import br.edu.ufrn.ecommerce.dto.request.BonusRequestDTO;
 
 @Service
 public class EcommerceService {
