@@ -3,6 +3,7 @@ package br.edu.ufrn.ecommerce.model;
 public class User {
     
     private Integer id;
+    private Integer bonus;
 
     public User() {}
 
@@ -12,6 +13,14 @@ public class User {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getBonus() {
+        return bonus;
+    }
+
+    public void setBonus(Integer bonus) {
+        this.bonus = bonus;
     }
 
 }

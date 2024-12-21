@@ -41,5 +41,8 @@ public class Product {
         this.valueBRL = valueBRL;
     }
 
+    public Integer getBonus() {
+        return Math.toIntExact(Math.round(this.value));
+    }
 
 }
