@@ -1,13 +1,13 @@
 package br.edu.ufrn.ecommerce.dto.request;
 
-public class BonusRequestDTO {
+public class FidelityBonusRequestDTO {
 
     private Integer user;
     private Integer bonus;
 
-    public BonusRequestDTO() {}
+    public FidelityBonusRequestDTO() {}
 
-    public BonusRequestDTO(Integer user, Integer bonus) {
+    public FidelityBonusRequestDTO(Integer user, Integer bonus) {
         this.user = user;
         this.bonus = bonus;
     }

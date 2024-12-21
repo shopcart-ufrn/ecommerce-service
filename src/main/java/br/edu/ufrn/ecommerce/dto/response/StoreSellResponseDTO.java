@@ -2,13 +2,13 @@ package br.edu.ufrn.ecommerce.dto.response;
 
 import java.util.UUID;
 
-public class ProductResponseDTO {
+public class StoreSellResponseDTO {
     
     private UUID id;
     
-    public ProductResponseDTO() {}
+    public StoreSellResponseDTO() {}
 
-    public ProductResponseDTO(
+    public StoreSellResponseDTO(
         UUID id
     ) {
         this.id = id;

@@ -1,77 +1,114 @@
 package br.edu.ufrn.ecommerce.service;
 
-import br.edu.ufrn.ecommerce.dto.request.BonusRequestDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.resilience4j.timelimiter.TimeLimiter;
-import io.github.resilience4j.timelimiter.TimeLimiterConfig;
+import br.edu.ufrn.ecommerce.dto.request.FidelityBonusRequestDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-
-import java.net.http.HttpTimeoutException;
 import java.time.Duration;
 import java.util.concurrent.*;
 
 @Service
 public class FidelityService {
 
+    @Value("${fidelity.baseUrl}")
+    private String baseUrl;
+
+    private WebClient client;
+    
+    private LinkedBlockingQueue<FidelityBonusRequestDTO> queue = new LinkedBlockingQueue<FidelityBonusRequestDTO>();
+
     private static final Logger logger = LoggerFactory.getLogger(FidelityService.class);
 
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private WebClient getClient() {
+        if (this.client == null) {
+            this.client = WebClient.builder()
+            .baseUrl(this.baseUrl)
+            .build();
+        }
 
-    private TimeLimiterConfig timeLimiterConfig = TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(1)).build();
-
-    private TimeLimiter timeLimiter = TimeLimiter.of(timeLimiterConfig);
-
-    private BlockingQueue<HttpRequest> queue = new LinkedBlockingQueue<>();
-
-    public void applyBonus(BonusRequestDTO bonusRequestDTO) throws IOException, InterruptedException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonBody = objectMapper.writeValueAsString(bonusRequestDTO);
-
-        HttpRequest request = HttpRequest.newBuilder(
-                        URI.create("http://localhost:8083/bonus"))
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .build();
-
-        sendRequest(request);
+        return this.client;
     }
 
-    public void sendRequest(HttpRequest request) {
-        try {
-            String result = timeLimiter.executeFutureSupplier(
-                    () -> CompletableFuture.supplyAsync(() -> {
-                        try {
-                            return client.send(request, HttpResponse.BodyHandlers.ofString()).body();
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-            );
-            logger.info("Request successfully registered with status code " + result);
+    private void postBonus(
+        FidelityBonusRequestDTO bonusRequestDTO
+    ) throws TimeoutException {
+        String endpoint = "/bonus";
 
-        } catch (HttpTimeoutException | TimeoutException e) {
-            queue.add(request);
-            logger.error("Unable to obtain result, the request exceeded the 1 s limit");
-        } catch (Exception e) {
-            logger.error("Error when trying to process the request, please try again later", e);
+        WebClient client = this.getClient();
+
+        client
+            .post()
+            .uri(endpoint)
+            .bodyValue(bonusRequestDTO)
+            .retrieve()
+            .toBodilessEntity()
+            .timeout(Duration.ofSeconds(1))
+            .block();
+        
+        logger.debug(
+            String.format(
+                "Bonus successfully sent to %s.",
+                this.baseUrl + endpoint
+            )
+        );
+    }
+
+    public void sendBonusWithFaultTolerance(
+        Integer user,
+        Integer bonus
+    ) {
+        FidelityBonusRequestDTO bonusRequestDTO = new FidelityBonusRequestDTO(
+            user, bonus
+        );
+
+        try {
+            this.postBonus(bonusRequestDTO);
+
+            logger.debug("Bonus successfully sent with ft enabled.");
+        } catch (TimeoutException e) {
+            this.queue.add(bonusRequestDTO);
+
+            logger.error(
+                "Unable to send bonus. "
+                + "The request exceeded the 1s of limit. "
+                + "A new request will be sent later."
+            );
         }
     }
 
+    public void sendBonusWithoutFaultTolerance(
+        Integer user,
+        Integer bonus
+    ) throws TimeoutException {
+        FidelityBonusRequestDTO bonusRequestDTO = new FidelityBonusRequestDTO(user, bonus);
+
+        this.postBonus(bonusRequestDTO);
+
+        logger.debug("Bonus successfully sent with ft disabled.");
+    }
+
     @Scheduled(initialDelay = 0, fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
-    public void processQueue() {
+    public void sendBonusRetry() {
         while (!queue.isEmpty()) {
-            HttpRequest request = queue.poll();
-            sendRequest(request);
+            FidelityBonusRequestDTO bonusRequestDTO = this.queue.poll();
+
+            try {
+                this.postBonus(bonusRequestDTO);
+
+                logger.debug("Bonus successfully sent from a retry call.");
+            } catch (TimeoutException e) {
+                this.queue.add(bonusRequestDTO);
+
+                logger.error(
+                    "Unable to send bonus from a retry call. "
+                    + "The request exceeded the 1s of limit. "
+                    + "The request will be send again to the queue."
+                );
+            }
         }
     }
 }
