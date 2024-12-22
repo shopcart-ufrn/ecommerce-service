@@ -20,30 +20,35 @@ public class EcommerceController {
     private EcommerceService ecommerceService;
 
     @PostMapping
-    public ResponseEntity<Void> buy(
+    public ResponseEntity<Long> buy(
         @RequestBody ProductRequestDTO productRequest
-    ) throws TimeoutException {
+    ) {
+        Long sellResponse;
 
-        StoreProductResponseDTO productDto = ecommerceService.getProduct(productRequest.getProduct(), productRequest.getFt());
+        try {
+            StoreProductResponseDTO productDto = ecommerceService.getProduct(productRequest.getProduct(), productRequest.getFt());
 
-       Double valueBRL = ecommerceService.getExchangeToBRL(
-            productDto.getValue(),
-            productRequest.getFt()
-        );
+            Double valueBRL = ecommerceService.getExchangeToBRL(
+                productDto.getValue(),
+                productRequest.getFt()
+            );
 
-        Product product = new Product(productDto.getId(), productDto.getName(), productDto.getValue(), valueBRL);
+            Product product = new Product(productDto.getId(), productDto.getName(), productDto.getValue(), valueBRL);
 
-        Long sellResponse = ecommerceService.sellProduct(productRequest.getUser(), productRequest.getFt());
+            sellResponse = ecommerceService.sellProduct(productRequest.getUser(), productRequest.getFt());
 
-        int roundedValue = (int) Math.round(productDto.getValue());
+            int roundedValue = (int) Math.round(productDto.getValue());
 
-        ecommerceService.sendBonus(
-            productRequest.getUser(),
-            roundedValue,
-            productRequest.getFt()
-        );
+            ecommerceService.sendBonus(
+                productRequest.getUser(),
+                roundedValue,
+                productRequest.getFt()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).build();
+        }
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(sellResponse);
     }
 
     @GetMapping("/{id}")
