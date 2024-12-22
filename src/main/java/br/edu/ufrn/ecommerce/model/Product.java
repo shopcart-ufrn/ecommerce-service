@@ -9,6 +9,13 @@ public class Product {
 
     public Product() {}
 
+    public Product(Integer id, String name, Double value, Double valueBRL) {
+        this.id = id;
+        this.name = name;
+        this.value = value;
+        this.valueBRL = value;
+    }
+
     public Integer getId() {
         return this.id;
     }

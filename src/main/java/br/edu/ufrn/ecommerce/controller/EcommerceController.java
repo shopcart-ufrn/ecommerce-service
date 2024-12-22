@@ -1,17 +1,21 @@
 package br.edu.ufrn.ecommerce.controller;
 
+import br.edu.ufrn.ecommerce.dto.request.StoreProductRequestDTO;
+import br.edu.ufrn.ecommerce.dto.response.StoreProductResponseDTO;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import br.edu.ufrn.ecommerce.dto.request.ProductRequestDTO;
 import br.edu.ufrn.ecommerce.model.Product;
 import br.edu.ufrn.ecommerce.model.User;
 import br.edu.ufrn.ecommerce.service.EcommerceService;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 @RestController
 @RequestMapping("/buy")
@@ -21,35 +25,34 @@ public class EcommerceController {
     private EcommerceService ecommerceService;
 
     @PostMapping
+    //@RateLimiter(name = "storeServiceRateLimiter", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<Void> buy(
         @RequestBody ProductRequestDTO productRequest
-    ) {
+    ) throws TimeoutException {
 
-        Product product = new Product();
-        product.setId(productRequest.getProduct());
-        
-        User user = new User();
-        user.setId(productRequest.getUser());
+        StoreProductResponseDTO productDto = ecommerceService.getProduct(productRequest.getProduct(), productRequest.getFt());
 
-        // ProductResponseDTO productResponse = ecommerceService.getProduct(productRequest.product);
-        product.setName("Shoes");
-        product.setValue(Double.valueOf(45.89));
-        user.setBonus(product.getBonus());
-
-        Double valueBRL = ecommerceService.getExchangeToBRL(
-            product.getValue(),
+       Double valueBRL = ecommerceService.getExchangeToBRL(
+            productDto.getValue(),
             productRequest.getFt()
         );
-        product.setValueBRL(valueBRL);
 
-        // SellResponseDTO sellResponse ecommerceService.sellProduct(productRequest.product);
+        Product product = new Product(productDto.getId(), productDto.getName(), productDto.getValue(), valueBRL);
 
-        // ecommerceService.sendBonus(
-        //     user.getId(),
-        //     user.getBonus(),
-        //     productRequest.getFt()
-        // );
+        UUID sellResponse = ecommerceService.sellProduct(productRequest.getUser(), productRequest.getFt());
+
+        int roundedValue = (int) Math.round(productDto.getValue());
+
+        ecommerceService.sendBonus(
+            productRequest.getUser(),
+            roundedValue,
+            productRequest.getFt()
+        );
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    public ResponseEntity<Void> rateLimiterFallback(@RequestBody ProductRequestDTO productRequest, Throwable throwable) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 }
