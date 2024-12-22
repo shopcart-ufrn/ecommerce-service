@@ -5,7 +5,7 @@ public class StoreProductResponseDTO {
     private Integer id;
     private String name;
     private Double value;
-    
+
     public StoreProductResponseDTO() {}
 
     public StoreProductResponseDTO(
@@ -29,5 +29,4 @@ public class StoreProductResponseDTO {
     public Double getValue() {
         return value;
     }
-
 }
