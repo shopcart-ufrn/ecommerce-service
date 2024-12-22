@@ -27,14 +27,12 @@ public class EcommerceService {
     public StoreProductResponseDTO getProduct(Integer id, Boolean ft) {
         StoreProductResponseDTO product;
 
-       /* if (ft) {
+       if (ft) {
             product = storeService.getProductWithFaultTolerance(id);
         } else {
             product = storeService.getProductWithoutFaultTolerance(id);
-        };*/
+        };
 
-        product = storeService.getProduct(id);
-    
         return product;
     }
 
