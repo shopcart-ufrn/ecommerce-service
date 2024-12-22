@@ -1,4 +1,4 @@
-package br.edu.ufrn.ecommerce.dto;
+package br.edu.ufrn.ecommerce.dto.request;
 
 public class ProductRequestDTO {
     
