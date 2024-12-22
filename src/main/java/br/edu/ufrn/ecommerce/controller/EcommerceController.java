@@ -36,7 +36,7 @@ public class EcommerceController {
 
         Product product = new Product(productDto.getId(), productDto.getName(), productDto.getValue(), valueBRL);
 
-        UUID sellResponse = ecommerceService.sellProduct(productRequest.getUser(), productRequest.getFt());
+        Long sellResponse = ecommerceService.sellProduct(productRequest.getUser(), productRequest.getFt());
 
         int roundedValue = (int) Math.round(productDto.getValue());
 

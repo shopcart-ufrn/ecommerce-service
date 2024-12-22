@@ -50,8 +50,8 @@ public class EcommerceService {
         return valueBRL;
     }
 
-    public UUID sellProduct(Integer id, Boolean ft) {
-        UUID sale;
+    public Long sellProduct(Integer id, Boolean ft) {
+        Long sale;
 
         if (ft) {
             sale = storeService.sellProductWithFaultTolerance(id);

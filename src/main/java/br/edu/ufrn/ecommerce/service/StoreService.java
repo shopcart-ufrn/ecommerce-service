@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import br.edu.ufrn.ecommerce.dto.request.StoreSellRequestDTO;
@@ -53,14 +54,15 @@ public class StoreService {
         }
     }
 
-    private UUID postSell(StoreSellRequestDTO sellRequestDTO) {
+    private Long postSell(StoreSellRequestDTO sellRequestDTO) {
         String endpoint = "/product/sell";
         WebClient client = this.getClient();
-        UUID response = client
+        Long response = client
                 .post()
                 .uri(endpoint)
+                .body(BodyInserters.fromValue(sellRequestDTO))
                 .retrieve()
-                .bodyToMono(UUID.class)
+                .bodyToMono(Long.class)
                 .timeout(Duration.ofSeconds(1))
                 .block();
 
@@ -80,17 +82,17 @@ public class StoreService {
     }
 
     @CircuitBreaker(name = "storeService", fallbackMethod = "sellProductFallBack")
-    public UUID sellProductWithFaultTolerance(Integer id) {
-        UUID result = postSell(new StoreSellRequestDTO(id));
+    public Long sellProductWithFaultTolerance(Integer id) {
+        Long result = postSell(new StoreSellRequestDTO(id));
         return result;
     }
     
-    public UUID sellProductWithoutFaultTolerance(Integer id) {
-        UUID result = postSell(new StoreSellRequestDTO(id));
+    public Long sellProductWithoutFaultTolerance(Integer id) {
+        Long result = postSell(new StoreSellRequestDTO(id));
         return result;
     }
 
-    public UUID sellProductFallBack(Integer id, Throwable throwable) {
+    public Long sellProductFallBack(Integer id, Throwable throwable) {
         throw new RuntimeException("The circuit breaker has been triggered", throwable);
     }
 
