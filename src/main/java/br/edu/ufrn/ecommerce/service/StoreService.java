@@ -3,9 +3,8 @@ package br.edu.ufrn.ecommerce.service;
 import java.time.Duration;
 import java.util.UUID;
 
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +22,7 @@ public class StoreService {
 
     private  WebClient client;
 
-    private static final Logger logger = LoggerFactory.getLogger(ExchangeService.class);
+    private static final Logger logger = LoggerFactory.getLogger(StoreService.class);
 
     private WebClient getClient() {
         if (client == null) {
@@ -55,7 +54,7 @@ public class StoreService {
     }
 
     private UUID postSell(StoreSellRequestDTO sellRequestDTO) {
-        String endpoint = "/sell";
+        String endpoint = "/product/sell";
         WebClient client = this.getClient();
         UUID response = client
                 .post()
@@ -68,28 +67,31 @@ public class StoreService {
         return response;
     }
 
-   /* public StoreProductResponseDTO getProductWithFaultTolerance(Integer id) {
-        // logic here to send get to product endpoint and retrieve product
+    public StoreProductResponseDTO getProductWithFaultTolerance(Integer id) {
+        StoreProductResponseDTO product = getProduct(id);
 
-        return new StoreProductResponseDTO(1, "Some", 15.99);
+        return product;
     }
-    
+
     public StoreProductResponseDTO getProductWithoutFaultTolerance(Integer id) {
-        // logic here to send get to product endpoint and retrieve product
+        StoreProductResponseDTO product = getProduct(id);
 
-        return new StoreProductResponseDTO(1, "Some", 15.99);
-    }*/
-    
+        return product;
+    }
+
+    @CircuitBreaker(name = "storeService", fallbackMethod = "sellProductFallBack")
     public UUID sellProductWithFaultTolerance(Integer id) {
-        // logic here to send post to sell endpoint and retrieve uuid
-
-        return UUID.randomUUID();
+        UUID result = postSell(new StoreSellRequestDTO(id));
+        return result;
     }
     
     public UUID sellProductWithoutFaultTolerance(Integer id) {
-        // logic here to send post to sell endpoint and retrieve uuid
+        UUID result = postSell(new StoreSellRequestDTO(id));
+        return result;
+    }
 
-        return UUID.randomUUID();
+    public UUID sellProductFallBack(Integer id, Throwable throwable) {
+        throw new RuntimeException("The circuit breaker has been triggered", throwable);
     }
 
 }
