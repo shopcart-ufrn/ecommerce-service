@@ -1,0 +1,52 @@
+services:
+
+  # Ecommerce instance (main)
+  ecommerce:
+    extends:
+      file: ./docker-compose.yml
+      service: ecommerce
+  
+
+  # Store instance with postgres
+  store:
+    extends:
+      file: ../store-service/docker-compose.yml
+      service: backend
+
+  postgres:
+    extends:
+      file: ../store-service/docker-compose.yml
+      service: postgres
+
+
+  # Exchange instance with nginx
+  exchange:
+    extends:
+      file: ../exchange-service/docker-compose.yml
+      service: exchange
+
+  nginx:
+    extends:
+      file: ../exchange-service/docker-compose.yml
+      service: nginx
+
+
+  # Fidelity instance
+  fidelity:
+    extends:
+      file: ../fidelity-service/docker-compose.yml
+      service: backend
+
+
+networks:
+  
+  ecommerce-network:
+    driver: bridge
+
+  app-network:
+    external: true
+
+  exchange-network:
+    driver: bridge
+  
+  
