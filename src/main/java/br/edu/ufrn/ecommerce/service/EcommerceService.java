@@ -1,6 +1,5 @@
 package br.edu.ufrn.ecommerce.service;
 
-import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
@@ -24,7 +23,7 @@ public class EcommerceService {
 
     private static final Logger logger = LoggerFactory.getLogger(EcommerceService.class);
 
-    public StoreProductResponseDTO getProduct(Integer id, Boolean ft) {
+    public StoreProductResponseDTO getProduct(Integer id, boolean ft) {
         StoreProductResponseDTO product;
 
        if (ft) {

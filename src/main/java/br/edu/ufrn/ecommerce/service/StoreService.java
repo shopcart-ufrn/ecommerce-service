@@ -1,19 +1,21 @@
 package br.edu.ufrn.ecommerce.service;
 
 import java.time.Duration;
-import java.util.UUID;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import br.edu.ufrn.ecommerce.dto.request.StoreSellRequestDTO;
 import br.edu.ufrn.ecommerce.dto.response.StoreProductResponseDTO;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class StoreService {
@@ -69,16 +71,17 @@ public class StoreService {
         return response;
     }
 
+    @RateLimiter(name = "storeServiceRateLimiter", fallbackMethod = "rateLimiterFallback")
     public StoreProductResponseDTO getProductWithFaultTolerance(Integer id) {
-        StoreProductResponseDTO product = getProduct(id);
+        return getProduct(id);
+    }
 
-        return product;
+    public StoreProductResponseDTO rateLimiterFallback(Integer id, Throwable throwable) {
+        throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded");
     }
 
     public StoreProductResponseDTO getProductWithoutFaultTolerance(Integer id) {
-        StoreProductResponseDTO product = getProduct(id);
-
-        return product;
+        return getProduct(id);
     }
 
     @CircuitBreaker(name = "storeService", fallbackMethod = "sellProductFallBack")
@@ -95,5 +98,4 @@ public class StoreService {
     public Long sellProductFallBack(Integer id, Throwable throwable) {
         throw new RuntimeException("The circuit breaker has been triggered", throwable);
     }
-
 }
