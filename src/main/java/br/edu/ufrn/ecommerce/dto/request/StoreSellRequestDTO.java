@@ -16,4 +16,8 @@ public class StoreSellRequestDTO {
         return product;
     }
 
+    public void setProduct(Integer product) {
+        this.product = product;
+    }
+
 }

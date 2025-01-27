@@ -73,17 +73,12 @@ public class StoreService {
         return response;
     }
 
-    // @RateLimiter(name = "storeServiceRateLimiter", fallbackMethod = "rateLimiterFallback")
-    @Retry(name = "storeService", fallbackMethod = "getProductFallBack")
+    @Retry(name = "storeServiceProduct", fallbackMethod = "getProductFallback")
     public StoreProductResponseDTO getProductWithFaultTolerance(Integer id) {
         return getProduct(id);
     }
 
-    public StoreProductResponseDTO rateLimiterFallback(Integer id, Throwable throwable) {
-        throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded");
-    }
-
-    public Long getProductFallBack(Integer id, Throwable throwable) {
+    public StoreProductResponseDTO getProductFallback(Integer id, Throwable throwable) {
         throw new RuntimeException("The fallback of getProduct has been triggered", throwable);
     }
 
@@ -91,7 +86,7 @@ public class StoreService {
         return getProduct(id);
     }
 
-    @Retry(name = "storeService", fallbackMethod = "sellProductFallBack")
+    @Retry(name = "storeServiceSell", fallbackMethod = "sellProductFallback")
     public Long sellProductWithFaultTolerance(Integer id) {
         Long result = postSell(new StoreSellRequestDTO(id));
         return result;
@@ -102,7 +97,7 @@ public class StoreService {
         return result;
     }
 
-    public Long sellProductFallBack(Integer id, Throwable throwable) {
+    public Long sellProductFallback(Integer id, Throwable throwable) {
         throw new RuntimeException("The  fallback of sellProduct has been triggered", throwable);
     }
 }

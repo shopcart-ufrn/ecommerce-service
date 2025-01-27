@@ -33,11 +33,9 @@ public class EcommerceController {
                 productRequest.getFt()
             );
 
-            Product product = new Product(productDto.getId(), productDto.getName(), productDto.getValue(), valueBRL);
+            sellResponse = ecommerceService.sellProduct(productRequest.getProduct(), productRequest.getFt());
 
-            sellResponse = ecommerceService.sellProduct(productRequest.getUser(), productRequest.getFt());
-
-            int roundedValue = (int) Math.round(productDto.getValue());
+            int roundedValue = (int) Math.round(productDto.getValue() * valueBRL);
 
             ecommerceService.sendBonus(
                 productRequest.getUser(),
